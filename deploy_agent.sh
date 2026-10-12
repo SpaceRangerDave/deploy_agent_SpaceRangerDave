@@ -2,6 +2,7 @@
 
 deploy_the_application(){
     echo "This feature creates the directories, creates the files, and populates them"
+    perform_pre_flight_checks
     
 }
 
@@ -13,7 +14,25 @@ archive_file_logs(){
     echo "After a run, archive the generated logs."
 }
 
-# This is the Main Menu
+perform_pre_flight_checks(){
+    if ! command -v zip > /dev/null 2>&1; then
+    echo "Zip is missing, install it first"
+    exit 1
+    else
+    echo "Zip exists, will proceed to check for Python"
+    sleep 2 # small pause so it feels like the script is really checking for python (might remove it)
+    fi
+
+    if ! command -v python3 > /dev/null 2>&1; then
+    echo "Python is missing, install it first"
+    exit 1
+    else
+    python3 --version
+    fi 
+
+}
+
+
 echo "1) Deploy The Application"
 echo "2) Run the Application"
 echo "3) Archive file logs"
