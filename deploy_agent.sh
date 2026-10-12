@@ -3,6 +3,7 @@
 deploy_the_application(){
     echo "This feature creates the directories, creates the files, and populates them"
     perform_pre_flight_checks
+    create_project_structure
     
 }
 
@@ -27,11 +28,32 @@ perform_pre_flight_checks(){
     echo "Python is missing, install it first"
     exit 1
     else
-    python3 --version
+    echo -n "Python Version: "; python3 --version
     fi 
-
 }
 
+create_project_structure(){
+    read -p "Enter a project name: " project_name
+
+    if [ -z "$project_name" ]; then 
+        echo "Aborting ...Project name can't be empty."
+        exit 1
+    fi
+
+    project_dir="attendance_tracker_$project_name"
+
+    if [ -e "$project_dir" ]; then 
+        read -p "$project_dir already exists. Overwrite? (y/n): " answer
+
+        if [ "$answer" = "y" ]; then
+            rm -rf "$project_dir"
+        else
+            echo "Aborting so nothing gets overwritten"
+            exit 1
+        fi
+    fi 
+    mkdir -p "$project_dir/Helpers" "$project_dir/reports"    
+}
 
 echo "1) Deploy The Application"
 echo "2) Run the Application"
