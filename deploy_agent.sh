@@ -4,6 +4,7 @@ deploy_the_application(){
     echo "This feature creates the directories, creates the files, and populates them"
     perform_pre_flight_checks
     create_project_structure
+    copy_template_files
     
 }
 
@@ -53,6 +54,19 @@ create_project_structure(){
         fi
     fi 
     mkdir -p "$project_dir/Helpers" "$project_dir/reports"    
+}
+
+copy_template_files(){
+    echo "Copying Templates files..."
+    sleep 2 # small pause so it feels like the script is really checking for python (might remove it)
+
+    cp templates/attendance_checker.py "$project_dir/" && echo "Copied attendance_checker.py"|| { exit 1; }
+
+    cp templates/config.json "$project_dir/Helpers/" && echo "Copied config.json" || { exit 1; }
+
+    sleep 2 # small pause so it feels like the script is really checking for python (might remove it)
+
+    echo "Template files copied into $project_dir"
 }
 
 echo "1) Deploy The Application"
