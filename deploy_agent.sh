@@ -5,6 +5,7 @@ deploy_the_application(){
     perform_pre_flight_checks
     create_project_structure
     copy_template_files
+    copy_student_roster_from_template
     
 }
 
@@ -67,6 +68,19 @@ copy_template_files(){
     sleep 2 # small pause so it feels like the script is really checking for python (might remove it)
 
     echo "Template files copied into $project_dir"
+}
+
+copy_student_roster_from_template(){
+    available=$(( $(wc -l < templates/assets.csv) - 1 ))
+    read -p "How many students to copy (1-$available)? " count
+
+    if [[ ! "$count" =~ ^[0-9]+$ ]] || [ "$count" -lt 1 ] || [ "$count" -gt "$available" ]; then
+        echo "Please enter a whole number from 1 to $available" >&2
+        exit 1
+    fi
+
+    head -n $((count + 1)) templates/assets.csv > "$project_dir/Helpers/assets.csv"
+    echo "Copied $count students into the roster"
 }
 
 echo "1) Deploy The Application"
