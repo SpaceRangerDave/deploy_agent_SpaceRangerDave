@@ -150,27 +150,42 @@ set_permissions(){
 
 update_attendance_thresholds(){
 
-   if [ -e "$project_dir/Helpers/config.json" ]; then 
+    if [ -e "$project_dir/Helpers/config.json" ]; then
         read -p "Update the attendance alert thresholds in config.json? (y/n): " update_answer
-        
+
         if [ "$update_answer" = "y" ] || [ "$update_answer" = "Y" ]; then
             read -p "New warning threshold [75]: " new_warning
             new_warning=${new_warning:-75}
-            sed -i "s/\"warning\": [0-9]*/\"warning\": $new_warning/" "$project_dir/Helpers/config.json"
-            
 
             read -p "New failure threshold [50]: " new_failure
             new_failure=${new_failure:-50}
+
+            if [[ ! "$new_warning" =~ ^[0-9]+$ ]] || [ "$new_warning" -gt 100 ]; then
+                echo "Warning must be a whole number from 0 to 100" >&2
+                exit 1
+            fi
+
+            if [[ ! "$new_failure" =~ ^[0-9]+$ ]] || [ "$new_failure" -gt 100 ]; then
+                echo "Failure must be a whole number from 0 to 100" >&2
+                exit 1
+            fi
+
+
+            if [ "$new_failure" -ge "$new_warning" ]; then
+                echo "Failure ($new_failure) must be lower than warning ($new_warning)" >&2
+                exit 1
+            fi
+
+            sed -i "s/\"warning\": [0-9]*/\"warning\": $new_warning/" "$project_dir/Helpers/config.json"
             sed -i "s/\"failure\": [0-9]*/\"failure\": $new_failure/" "$project_dir/Helpers/config.json"
 
-            # sleep 2 # small pause for asthetics (might remove it)
             echo "New warning threshold: $new_warning"
             echo "New failure threshold: $new_failure"
         else
             echo "Keeping the default thresholds"
             return
         fi
-    fi     
+    fi
 }
 
 # Main Menu
