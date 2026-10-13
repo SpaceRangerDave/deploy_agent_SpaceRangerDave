@@ -6,6 +6,7 @@ deploy_the_application(){
     create_project_structure
     copy_template_files
     copy_or_generate_roster
+    set_permissions
     
 }
 
@@ -122,6 +123,28 @@ copy_or_generate_roster(){
         B|b) generate_fresh_student_roster;;
         *) echo "Invalid choice" >&2; exit 1 ;;
     esac
+}
+
+set_permissions(){
+
+    if [ -x "$project_dir/attendance_checker.py" ]; then
+        echo "The file is already executable!"
+    else
+        chmod +x "$project_dir/attendance_checker.py"
+         echo "$project_dir/attendance_checker.py has been made executable."
+    fi
+
+    if [ "$(stat -c '%a' "$project_dir/Helpers/config.json")" = "600"  ]; then
+       echo "The file has the correct permission value"
+    else
+       chmod 600 "$project_dir/Helpers/config.json" 
+       echo "$project_dir/Helpers/config.json has been give the correct permission value"
+    fi
+
+    sleep 2 # small pause for asthetics (might remove it)
+    echo "Current $project file permissions: "
+    ls -l "$project_dir/attendance_checker.py" "$project_dir/Helpers/config.json"
+
 }
 
 # Main Menu
