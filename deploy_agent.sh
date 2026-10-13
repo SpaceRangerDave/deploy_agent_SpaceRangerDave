@@ -11,14 +11,32 @@ deploy_the_application(){
 }
 
 run_the_application(){
-    echo "A standalone feature that executes the app on an already deployed project:"
+    read -p "Enter the project name to run: " run_project_name
+
+    if [ -z "$run_project_name" ]; then 
+        echo "Aborting ...Project name can't be empty."
+        exit 1
+    fi
+
+    run_project_dir="attendance_tracker_$run_project_name"
+
+    if [ -d "$run_project_dir" ]; then 
+        if [ -f "$run_project_dir/attendance_checker.py" ]; then
+            ( cd "$run_project_dir" && python3 attendance_checker.py )
+        else
+            echo "attendance_checker.py is missing" >&2; exit 1   
+        fi    
+    else
+       echo "No deployed project called $run_project_dir" >&2; exit 1
+    fi 
+
 }
 
 archive_file_logs(){ 
     echo "After a run, archive the generated logs."
 }
 
-
+#remember to add comments on the functions
 perform_pre_flight_checks(){
     if ! command -v zip > /dev/null 2>&1; then
     echo "Zip is missing, install it first"
@@ -187,7 +205,7 @@ update_attendance_thresholds(){
         fi
     fi
 }
-
+ 
 # Main Menu
 echo "1) Deploy The Application"
 echo "2) Run the Application"
