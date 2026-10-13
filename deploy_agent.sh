@@ -5,7 +5,7 @@ deploy_the_application(){
     perform_pre_flight_checks
     create_project_structure
     copy_template_files
-    copy_student_roster_from_template
+    copy_or_generate_roster
     
 }
 
@@ -83,6 +83,22 @@ copy_student_roster_from_template(){
     echo "Copied $count students into the roster"
 }
 
+copy_or_generate_roster(){
+    sleep 2 # small pause so it feels like the script is really checking for python (might remove it)
+    echo "Wold you like to copy roster from template or Generate a fresh one ?"
+    echo "A) Copy from the template"
+    echo "B) Generate a fresh roster"
+
+    read -p "Pick a letter: " user_roster_choice
+
+    case "$user_roster_choice" in
+        A|a) copy_student_roster_from_template;;
+        B|b) generate_fresh_student_roster;;
+        *) echo "Invalid choice" >&2; exit 1 ;;
+    esac
+}
+
+# Main Menu
 echo "1) Deploy The Application"
 echo "2) Run the Application"
 echo "3) Archive file logs"
