@@ -59,13 +59,13 @@ create_project_structure(){
 
 copy_template_files(){
     echo "Copying Templates files..."
-    sleep 2 # small pause so it feels like the script is really checking for python (might remove it)
+    sleep 2 # small pause for asthetics (might remove it) 
 
     cp templates/attendance_checker.py "$project_dir/" && echo "Copied attendance_checker.py"|| { exit 1; }
 
     cp templates/config.json "$project_dir/Helpers/" && echo "Copied config.json" || { exit 1; }
 
-    sleep 2 # small pause so it feels like the script is really checking for python (might remove it)
+    sleep 2 # small pause for asthetics (might remove it)
 
     echo "Template files copied into $project_dir"
 }
@@ -102,8 +102,10 @@ generate_fresh_student_roster(){
     for ((i=0; i<count; i++)); do
         printf "%s,%s,0,0\n" "${emails[i]}" "${names[i]}" >> "$project_dir/Helpers/assets.csv"
     done
-
     echo "Generated $count students into the roster"
+
+    sed -i 's/"total_sessions": [0-9]*/"total_sessions": 1/' "$project_dir/Helpers/config.json"
+    echo "total_sessions set to 1 because this roster is brand new"
 }
 
 
