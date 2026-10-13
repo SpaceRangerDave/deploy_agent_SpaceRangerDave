@@ -83,9 +83,33 @@ copy_student_roster_from_template(){
     echo "Copied $count students into the roster"
 }
 
+generate_fresh_student_roster(){
+    names=("Alice Johnson" "Kwame Mensah" "Amina Niyonzima" "Thabo Nkosi" "Mei Chen" "Arjun Patel" "Yuki Tanaka" "Min-jun Kim" "Olivia Smith" "Liam O'Connor" "Sofia Garcia" "Luca Rossi" "Camila Oliveira" "Mateo Fernandez" "Isabella Santos" "Noah Williams" "Mia Thompson" "Wiremu Te Rangi" "Isabella Ngata" "Lani Taufua")
+
+    emails=("alice@example.com" "kwame@example.com" "amina@example.com" "thabo@example.com" "mei@example.com" "arjun@example.com" "yuki@example.com" "minjun@example.com" "olivia@example.com" "liam@example.com" "sofia@example.com" "luca@example.com" "camila@example.com" "mateo@example.com" "isabella.santos@example.com" "noah@example.com" "mia@example.com" "wiremu@example.com" "isabella.ngata@example.com" "lani@example.com")   
+
+    available=${#names[@]}
+
+    read -p "How many students to generate (1-$available)? " count
+
+    if [[ ! "$count" =~ ^[0-9]+$ ]] || [ "$count" -lt 1 ] || [ "$count" -gt "$available" ]; then
+        echo "Please enter a whole number from 1 to $available" >&2
+        exit 1
+    fi
+
+    echo "Email,Names,Attendance Count,Absence Count" > "$project_dir/Helpers/assets.csv"
+
+    for ((i=0; i<count; i++)); do
+        printf "%s,%s,0,0\n" "${emails[i]}" "${names[i]}" >> "$project_dir/Helpers/assets.csv"
+    done
+
+    echo "Generated $count students into the roster"
+}
+
+
 copy_or_generate_roster(){
-    sleep 2 # small pause so it feels like the script is really checking for python (might remove it)
-    echo "Wold you like to copy roster from template or Generate a fresh one ?"
+    sleep 2 # small pause for asthetics (might remove it)
+    echo "Would you like to copy roster from template or Generate a fresh one ?"
     echo "A) Copy from the template"
     echo "B) Generate a fresh roster"
 
