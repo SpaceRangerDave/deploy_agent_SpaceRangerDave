@@ -71,7 +71,7 @@ copy_template_files(){
 }
 
 copy_student_roster_from_template(){
-    available=$(( $(wc -l < templates/assets.csv) - 1 ))
+    available=$(( $(grep -c . templates/assets.csv) - 1 ))
     read -p "How many students to copy (1-$available)? " count
 
     if [[ ! "$count" =~ ^[0-9]+$ ]] || [ "$count" -lt 1 ] || [ "$count" -gt "$available" ]; then
