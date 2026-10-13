@@ -7,7 +7,7 @@ deploy_the_application(){
     copy_template_files
     copy_or_generate_roster
     set_permissions
-    
+    update_attendance_thresholds
 }
 
 run_the_application(){
@@ -17,6 +17,7 @@ run_the_application(){
 archive_file_logs(){ 
     echo "After a run, archive the generated logs."
 }
+
 
 perform_pre_flight_checks(){
     if ! command -v zip > /dev/null 2>&1; then
@@ -48,7 +49,7 @@ create_project_structure(){
     if [ -e "$project_dir" ]; then 
         read -p "$project_dir already exists. Overwrite? (y/n): " answer
 
-        if [ "$answer" = "y" ]; then
+        if [ "$answer" = "y" ] || [ "$answer" = "Y" ]; then
             rm -rf "$project_dir"
         else
             echo "Aborting so nothing gets overwritten"
@@ -109,7 +110,7 @@ generate_fresh_student_roster(){
     echo "total_sessions set to 1 because this roster is brand new"
 }
 
-
+# function that creates a menu for roster 
 copy_or_generate_roster(){
     sleep 2 # small pause for asthetics (might remove it)
     echo "Would you like to copy roster from template or Generate a fresh one ?"
@@ -138,13 +139,38 @@ set_permissions(){
        echo "The file has the correct permission value"
     else
        chmod 600 "$project_dir/Helpers/config.json" 
-       echo "$project_dir/Helpers/config.json has been give the correct permission value"
+       echo "$project_dir/Helpers/config.json has been given the correct permission value"
     fi
 
     sleep 2 # small pause for asthetics (might remove it)
-    echo "Current $project file permissions: "
+    echo "Current $project file permissions:"
     ls -l "$project_dir/attendance_checker.py" "$project_dir/Helpers/config.json"
 
+}
+
+update_attendance_thresholds(){
+
+   if [ -e "$project_dir/Helpers/config.json" ]; then 
+        read -p "Update the attendance alert thresholds in config.json? (y/n): " update_answer
+        
+        if [ "$update_answer" = "y" ] || [ "$update_answer" = "Y" ]; then
+            read -p "New warning threshold [75]: " new_warning
+            new_warning=${new_warning:-75}
+            sed -i "s/\"warning\": [0-9]*/\"warning\": $new_warning/" "$project_dir/Helpers/config.json"
+            
+
+            read -p "New failure threshold [50]: " new_failure
+            new_failure=${new_failure:-50}
+            sed -i "s/\"failure\": [0-9]*/\"failure\": $new_failure/" "$project_dir/Helpers/config.json"
+
+            # sleep 2 # small pause for asthetics (might remove it)
+            echo "New warning threshold: $new_warning"
+            echo "New failure threshold: $new_failure"
+        else
+            echo "Keeping the default thresholds"
+            return
+        fi
+    fi     
 }
 
 # Main Menu
