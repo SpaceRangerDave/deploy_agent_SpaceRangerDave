@@ -8,6 +8,8 @@ deploy_the_application(){
     copy_or_generate_roster
     set_permissions
     update_attendance_thresholds
+
+    ( cd "$project_dir" && python3 attendance_checker.py ) # finish by starting the app, so a clean start proves the deploy worked
 }
 
 run_the_application(){
@@ -161,7 +163,7 @@ set_permissions(){
     fi
 
     sleep 2 # small pause for asthetics (might remove it)
-    echo "Current $project file permissions:"
+    echo "Current $project_dir file permissions:"
     ls -l "$project_dir/attendance_checker.py" "$project_dir/Helpers/config.json"
 
 }
