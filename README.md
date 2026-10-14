@@ -219,8 +219,7 @@ I tested the failure paths as well as the happy path, since most of my bugs show
 
 ## Demo video
 
-<!-- Replace with the real link before submitting -->
-Video walkthrough: _add link here_
+Video walkthrough: https://drive.google.com/file/d/1kMJ6iUnBrAsgjJUazhqUYEGppWOdqQdC/view?usp=sharing
 
 ## Author
 
