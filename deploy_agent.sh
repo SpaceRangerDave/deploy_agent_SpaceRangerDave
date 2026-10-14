@@ -1,13 +1,36 @@
 #!/usr/bin/env bash
 
+handle_interrupt(){
+    echo "" >&2
+    echo "Deployment interrupted, saving what was built so far..." >&2
+
+    # only touch the folder if this deploy actually created it in create_project_structure
+    if [ "$project_created" = "yes" ] && [ -d "$project_dir" ]; then
+        rm -f "${project_dir}_archive.zip"  
+        if zip -rq "${project_dir}_archive.zip" "$project_dir"; then
+            rm -rf "$project_dir"   
+            echo "Saved to ${project_dir}_archive.zip and removed the incomplete folder." >&2
+        else
+            echo "Zip failed, so I left $project_dir in place." >&2
+        fi
+    else
+        echo "Nothing had been created yet, so there is nothing to archive." >&2
+    fi
+
+    exit 1
+}
+
 deploy_the_application(){
     echo "This feature creates the directories, creates the files, and populates them"
+    trap handle_interrupt SIGINT SIGTSTP
     perform_pre_flight_checks
     create_project_structure
     copy_template_files
     copy_or_generate_roster
     set_permissions
     update_attendance_thresholds
+
+    trap - SIGINT SIGTSTP
 
     ( cd "$project_dir" && python3 attendance_checker.py ) # finish by starting the app, so a clean start proves the deploy worked
 }
@@ -107,7 +130,8 @@ create_project_structure(){
             exit 1
         fi
     fi 
-    mkdir -p "$project_dir/Helpers" "$project_dir/reports"    
+    mkdir -p "$project_dir/Helpers" "$project_dir/reports"
+    project_created="yes"    
 }
 
 copy_template_files(){
