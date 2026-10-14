@@ -35,7 +35,22 @@ run_the_application(){
 }
 
 archive_file_logs(){ 
-    echo "After a run, archive the generated logs."
+    # echo "After a run, archive the generated logs."
+    read -p "Enter the project name to archive: " archive_name
+
+    if [ -z "$archive_name" ]; then
+        echo "Aborting ...Project name can't be empty."
+        exit 1
+    fi
+
+    archive_project_dir="attendance_tracker_$archive_name"
+
+    if [ -d "$archive_project_dir" ]; then
+        echo "$archive_project_dir exists"
+
+    else
+       echo "No deployed project called $archive_project_dir" >&2; exit 1
+    fi 
 }
 
 #remember to add comments on the functions
