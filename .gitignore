@@ -1,3 +1,5 @@
 # Projects my script deploys while I'm testing it
 attendance_tracker_*/
 
+# Zips made when a deploy gets interrupted
+attendance_tracker_*_archive.zip
