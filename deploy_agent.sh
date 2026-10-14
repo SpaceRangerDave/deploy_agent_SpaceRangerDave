@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# runs when Ctrl+C or Ctrl+Z hits during deploy. Zips what was built so far then deletes the half-made folder.
 handle_interrupt(){
     echo "" >&2
     echo "Deployment interrupted, saving what was built so far..." >&2
@@ -20,8 +21,9 @@ handle_interrupt(){
     exit 1
 }
 
+# option 1 on the menu. Calls the setup functions below in order then starts the app at the end
 deploy_the_application(){
-    echo "This feature creates the directories, creates the files, and populates them"
+    # echo "This feature creates the directories, creates the files, and populates them"
     trap handle_interrupt SIGINT SIGTSTP
     perform_pre_flight_checks
     create_project_structure
@@ -35,6 +37,7 @@ deploy_the_application(){
     ( cd "$project_dir" && python3 attendance_checker.py ) # finish by starting the app, so a clean start proves the deploy worked
 }
 
+# option 2 on the menu that asks which project to run and starts the app inside it.
 run_the_application(){
     read -p "Enter the project name to run: " run_project_name
 
@@ -57,6 +60,7 @@ run_the_application(){
 
 }
 
+# option 3 on the menu that asks which project then saves timestamped copies of the logs into archives/.
 archive_file_logs(){ 
     # echo "After a run, archive the generated logs."
     read -p "Enter the project name to archive: " archive_name
@@ -92,7 +96,7 @@ archive_file_logs(){
     fi 
 }
 
-#remember to add comments on the functions
+# Called first inside deploy_the_application. Checks zip and python3 are installed so we fail before building anything.
 perform_pre_flight_checks(){
     if ! command -v zip > /dev/null 2>&1; then
     echo "Zip is missing, install it first"
@@ -110,6 +114,7 @@ perform_pre_flight_checks(){
     fi 
 }
 
+# Called inside deploy_the_application asks for the project name, handles the "already exists" case and makes the folders.
 create_project_structure(){
     read -p "Enter a project name: " project_name
 
@@ -134,6 +139,7 @@ create_project_structure(){
     project_created="yes"    
 }
 
+# called inside deploy_the_application it copies attendance_checker.py and config.json from templates/ without changing them.
 copy_template_files(){
     echo "Copying Templates files..."
     sleep 2 # small pause for asthetics (might remove it) 
@@ -147,6 +153,7 @@ copy_template_files(){
     echo "Template files copied into $project_dir"
 }
 
+# called inside copy_or_generate_roster (its bellow) when the user picks A it copies the first N students from the template roster.
 copy_student_roster_from_template(){
     available=$(( $(grep -c . templates/assets.csv) - 1 ))
     read -p "How many students to copy (1-$available)? " count
@@ -160,6 +167,7 @@ copy_student_roster_from_template(){
     echo "Copied $count students into the roster"
 }
 
+# called inside copy_or_generate_roster (its bellow) when the user picks B it builds a fresh roster then sets total_sessions to 1.
 generate_fresh_student_roster(){
     names=("Mussab Atif Ibrahim Abdelgadir" "Bill Francis Ajengo" "Felix Chifumnanya Akpu" "Akuol Juach Agok Anyar" "Mucyo Kayibanda Blaise" "Brandon Nshuti Bugingo" "Teta Christella" "Gold Adaobi Cole-Okafor" "Tona Faradowza" "Keji Vicky Wani Hillario" "Latonia Igihozo" "Eden Ganael Ntahonkiriye Intwari" "David Ishimwe" "Shekinah Eva Kamikazi" "Fiorella Demba Keza" "Neema Nyokabi Maina" "Hwa-Pyong Edouard Maniragaba" "Miriam Daniel Meles" "Ian Maranga Misati" "Derrick Mugire" "Frank Mugisha" "Aristide Niyokwizerwa" "Benjamin Mugisha Ntege" "Obichukwu Sidney Nwosu" "David Olowatomisin Oladapo" "Nyamesomfo Ama Osei-Nimako" "Raymond Odhiambo Otieno" "Benjamin Kwagala Semakula" "Prosper Shimwa" "Thierry Sugira" "Teninlanimi David Taiwo" "Kevine Umuganwa" "Lewis Gathungu Wanjiku" "steve Dessoue Yambouka")
 
@@ -185,7 +193,7 @@ generate_fresh_student_roster(){
     echo "total_sessions set to 1 because this roster is brand new"
 }
 
-# function that creates a menu for roster 
+# called inside deploy_the_application it asks whether to copy or generate the roster then calls the matching function.
 copy_or_generate_roster(){
     sleep 2 # small pause for asthetics (might remove it)
     echo "Would you like to copy roster from template or Generate a fresh one ?"
@@ -201,6 +209,7 @@ copy_or_generate_roster(){
     esac
 }
 
+# called inside deploy_the_application it makes the app executable and locks config.json to owner read/write only.
 set_permissions(){
 
     if [ -x "$project_dir/attendance_checker.py" ]; then
@@ -220,9 +229,9 @@ set_permissions(){
     sleep 2 # small pause for asthetics (might remove it)
     echo "Current $project_dir file permissions:"
     ls -l "$project_dir/attendance_checker.py" "$project_dir/Helpers/config.json"
-
 }
 
+# called inside deploy_the_application and optionally changes the warning and failure thresholds
 update_attendance_thresholds(){
 
     if [ -e "$project_dir/Helpers/config.json" ]; then
