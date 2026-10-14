@@ -46,7 +46,23 @@ archive_file_logs(){
     archive_project_dir="attendance_tracker_$archive_name"
 
     if [ -d "$archive_project_dir" ]; then
-        echo "$archive_project_dir exists"
+        timestamp=$(date +%Y%m%d_%H%M%S)
+
+        mkdir -p "$archive_project_dir/archives/attendance" "$archive_project_dir/archives/absent"
+
+        if [ -f "$archive_project_dir/reports/attendance.log" ]; then
+            cp "$archive_project_dir/reports/attendance.log" "$archive_project_dir/archives/attendance/attendance_$timestamp.log"
+            echo "Archived attendance.log to $archive_project_dir/archives/attendance/ "
+        else
+            echo "No attendance.log found, nothing to archive"
+        fi
+
+        if [ -f "$archive_project_dir/reports/absent.log" ]; then
+            cp "$archive_project_dir/reports/absent.log" "$archive_project_dir/archives/absent/absent_$timestamp.log"
+            echo "Archived absent.log to $archive_project_dir/archives/absent/"
+        else
+            echo "No absent.log found, nothing to archive"
+        fi
 
     else
        echo "No deployed project called $archive_project_dir" >&2; exit 1
